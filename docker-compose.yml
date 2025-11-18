@@ -1,0 +1,56 @@
+services:
+
+  loki:
+      image: grafana/loki:latest
+      container_name: loki
+      restart: always
+      user: "0:0"  # ISSO NÂO VAI EM PRODUÇÂO, TEM QUE TIRAR
+      ports:
+        - 3100:3100
+        - 7946
+        - 9095
+
+
+  tempo:
+    image: grafana/tempo:latest
+    container_name: tempo
+    restart: always
+    command: ["-config.file=/etc/tempo.yml"]
+    volumes:
+      - ./config/tempo/tempo.yml:/etc/tempo.yml
+
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    volumes:
+      - /var/log:/var/log
+    command: ["-config.file=/etc/promtail/config.yml"]
+
+
+  mimir:
+   image: grafana/mimir:latest
+   container_name: mimir
+   restart: always
+   ports:
+     - 9090:9090
+   command: ["-config.file=/etc/mimir.yml"]
+   volumes:
+     - ./config/mimir/mimir.yml:/etc/mimir.yml
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: always
+    ports:
+      - 3000:3000
+    volumes:
+      - ./config/grafana/datasources.yml:/etc/grafana/provisioning/datasources.yml
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_ANONYMOUS_FORM_LOGIN=true
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+    depends_on:
+      - loki
+  
