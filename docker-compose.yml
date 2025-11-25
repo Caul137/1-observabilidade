@@ -16,8 +16,29 @@ services:
     container_name: tempo
     restart: always
     command: ["-config.file=/etc/tempo.yml"]
+    ports:
+      - 4327:4317
+      - 4328:4318
     volumes:
       - ./config/tempo/tempo.yml:/etc/tempo.yml
+
+
+  otel:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel
+    restart: always
+    ports:
+      - 4317:4317
+      - 4318:4318
+      - 8888:8888
+    command: ["--config=/etc/otelcol/config.yml"]
+    volumes:
+      - ./config/otel/otel.yml:/etc/otelcol/config.yml
+    depends_on:
+      - loki
+      - tempo
+      - mimir
+      - grafana
 
 
   promtail:
@@ -43,7 +64,7 @@ services:
     container_name: grafana
     restart: always
     ports:
-      - 3000:3000
+      - 3001:3000
     volumes:
       - ./config/grafana/datasources.yml:/etc/grafana/provisioning/datasources.yml
     environment:
@@ -53,4 +74,6 @@ services:
       - GF_SECURITY_ALLOW_EMBEDDING=true
     depends_on:
       - loki
+      - tempo
+      - mimir
   
