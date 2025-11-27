@@ -18,6 +18,8 @@ import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-proto";
 
 import {diag, DiagConsoleLogger, DiagLogLevel} from '@opentelemetry/api'
 
+console.log('a')
+
 const traceExporter = new OTLPTraceExporter();
 
 const resource = resourceFromAttributes({
@@ -32,12 +34,13 @@ diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO)
 const sdk = new NodeSDK({
   spanProcessors:[ new BatchSpanProcessor(traceExporter)],
   traceExporter: new ConsoleSpanExporter(),
-  metricReader: new PeriodicExportingMetricReader({
+  metricReaders:[ new PeriodicExportingMetricReader({
     exporter: new ConsoleMetricExporter(),
-  }),
-  logRecordProcessor: new SimpleLogRecordProcessor(new OTLPLogExporter()),
+  })],
+  logRecordProcessors: [new SimpleLogRecordProcessor(new OTLPLogExporter())],
   instrumentations: [getNodeAutoInstrumentations()],
   resource: mergedResource
 });
 
-sdk.start();
+
+export default sdk
