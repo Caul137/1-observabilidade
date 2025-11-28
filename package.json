@@ -24,6 +24,7 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
     "@opentelemetry/auto-instrumentations-node": "^0.67.1",
+    "@opentelemetry/exporter-metrics-otlp-grpc": "^0.208.0",
     "@opentelemetry/sdk-node": "^0.208.0",
     "express": "^5.1.0",
     "pino": "^10.1.0",
